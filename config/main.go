@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// create config client
-	client, err := clients.NewConfigClient(
+	cfgClient, err := clients.NewConfigClient(
 		vo.NacosClientParam{
 			ClientConfig:  &cc,
 			ServerConfigs: sc,
@@ -44,7 +44,7 @@ func main() {
 
 	//3.推送 config
 	//config key = dataId + group + namespaceId
-	_, err = client.PublishConfig(vo.ConfigParam{
+	_, err = cfgClient.PublishConfig(vo.ConfigParam{
 		DataId:  "test-data",
 		Group:   "test-group",
 		Content: "hello world!",
@@ -53,7 +53,9 @@ func main() {
 		fmt.Printf("PublishConfig err:%+v \n", err)
 	}
 
-	_, err = client.PublishConfig(vo.ConfigParam{
+	time.Sleep(time.Hour * 1)
+
+	_, err = cfgClient.PublishConfig(vo.ConfigParam{
 		DataId:  "test-data-2",
 		Group:   "test-group",
 		Content: "hello world!",
@@ -65,14 +67,14 @@ func main() {
 	time.Sleep(1 * time.Second)
 
 	//4.获取 config
-	content, err := client.GetConfig(vo.ConfigParam{
+	content, err := cfgClient.GetConfig(vo.ConfigParam{
 		DataId: "test-data",
 		Group:  "test-group",
 	})
 	fmt.Println("GetConfig,config :" + content)
 
 	//5.动态监听配置变化（异步）key = dataId + group + namespaceId.
-	err = client.ListenConfig(vo.ConfigParam{
+	err = cfgClient.ListenConfig(vo.ConfigParam{
 		DataId: "test-data",
 		Group:  "test-group",
 		OnChange: func(namespace, group, dataId, data string) {
@@ -80,7 +82,7 @@ func main() {
 		},
 	})
 
-	err = client.ListenConfig(vo.ConfigParam{
+	err = cfgClient.ListenConfig(vo.ConfigParam{
 		DataId: "test-data-2",
 		Group:  "test-group",
 		OnChange: func(namespace, group, dataId, data string) {
@@ -90,7 +92,7 @@ func main() {
 
 	time.Sleep(1 * time.Second)
 
-	_, err = client.PublishConfig(vo.ConfigParam{
+	_, err = cfgClient.PublishConfig(vo.ConfigParam{
 		DataId:  "test-data",
 		Group:   "test-group",
 		Content: "test-listen",
@@ -98,7 +100,7 @@ func main() {
 
 	time.Sleep(1 * time.Second)
 
-	_, err = client.PublishConfig(vo.ConfigParam{
+	_, err = cfgClient.PublishConfig(vo.ConfigParam{
 		DataId:  "test-data-2",
 		Group:   "test-group",
 		Content: "test-listen",
@@ -107,20 +109,20 @@ func main() {
 	time.Sleep(1 * time.Second)
 
 	// 6.删除配置
-	_, err = client.DeleteConfig(vo.ConfigParam{
+	_, err = cfgClient.DeleteConfig(vo.ConfigParam{
 		DataId: "test-data",
 		Group:  "test-group",
 	})
 	time.Sleep(1 * time.Second)
 
 	// 7.取消监听配置变化
-	err = client.CancelListenConfig(vo.ConfigParam{
+	err = cfgClient.CancelListenConfig(vo.ConfigParam{
 		DataId: "test-data",
 		Group:  "test-group",
 	})
 
 	// 8.搜索配置（search=accurate--精确搜索  search=blur--模糊搜索）
-	searchPage, _ := client.SearchConfig(vo.SearchConfigParam{
+	searchPage, _ := cfgClient.SearchConfig(vo.SearchConfigParam{
 		Search:   "blur",
 		DataId:   "",
 		Group:    "",
